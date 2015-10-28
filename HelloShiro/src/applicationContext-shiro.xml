@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml" />
+	</bean>
+	<bean id="myRealm" class="com.atguigu.shiro.MyRealm">
+		<property name="credentialsMatcher">
+			<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+    			<property name="hashAlgorithmName" value="MD5"></property>
+    			<property name="hashIterations" value="1024"></property>
+			</bean>
+		</property>
+	</bean>
+
+
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="cacheManager" ref="cacheManager" />
+		<!-- <property name="sessionMode" value="native"/> -->
+		<property name="realm" ref="myRealm" />
+	</bean>
+
+	<!-- 配置自动调用 Shiro 对象的 init 和 destroy method 的 BeanPostProcessor -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- 配置使在 Spring 环境下 Shiro 注解生效的两个 bean. 要求必须配置 LifecycleBeanPostProcessor -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+
+
+	<!-- 配置 shiroFilter: 1). 注意: bean 的 id 必须和 web.xml 文件中 filter 的 filter-name 
+		一致. -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<!-- 配置登陆页面 -->
+		<property name="loginUrl" value="/login.jsp" />
+		<!-- 成功页面可以不做配置, 因为登陆在 Handler 中完成, 若登陆成功, 由 Handler 直接转发到目标页面 -->
+		<!-- <property name="successUrl" value="/s/index"/> -->
+		<!-- 配置若没有权限时的响应页面 -->
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+
+
+		<!-- 配置具体的拦截页面 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- anon: 代表可以匿名访问 -->
+				/login.jsp = anon
+				/unauthorized.jsp = anon
+				/list.jsp = anon
+				/shiro-login = anon
+				
+				/shiro-logout = logout
+				
+				<!--设置权限  -->
+				 /admin.jsp = roles[admin]
+                 /user.jsp = roles[user]
+
+				<!-- authc: 代表必须登陆后才可以访问 -->
+				/** = authc
+				
+			</value>
+		</property>
+	</bean>
+</beans>

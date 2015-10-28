@@ -1,0 +1,8 @@
+1、搭建springmvc环境
+2、ehcache环境
+3、web 下 shiro环境  
+	需要配置Filter
+	spring配置文件集成  shiro配置
+	1）
+	2）
+	3）
