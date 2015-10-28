@@ -6,6 +6,7 @@
 	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
 		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml" />
 	</bean>
+
 	<bean id="myRealm" class="com.atguigu.shiro.MyRealm">
 		<property name="credentialsMatcher">
 			<bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
